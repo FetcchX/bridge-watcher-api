@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TxStatus {
+  PENDING
+  FAILED
+  COMPLETED
+}
+
+enum Bridge {
+  HOP
+  CELER
+  HYPHEN
+  ACROSS
+}
+
+enum Chain {
+  POL
+  ETH
+  AVAX
+  BSC
+}
+
+model Transaction {
+  id             Int       @id @default(autoincrement())
+  from           String
+  to             String
+  from_chain     Chain     @default(ETH)
+  to_chain       Chain     @default(POL)
+  origin_tx_hash String
+  dest_tx_hash   String?
+  bridge         Bridge
+  status         TxStatus
+  origin_time    DateTime  @default(now())
+  dest_time      DateTime?
+}
+
+model Block {
+  id           Int    @id @default(autoincrement())
+  block_number String @default("1")
+}
