@@ -63,7 +63,7 @@ const get_internal_tx = async (
 			page: 1,
 			offset: 10,
 			sort: 'asc',
-			apiKey: 'K1A72SQ6H1ZTJRKRD2D8VB6I6HYGHPJKMY'
+			apiKey: process.env.ETHERSCAN_API
 		}
 	})
 
@@ -116,7 +116,7 @@ const get_erc20_tx = async (
 			page: 1,
 			offset: 10,
 			sort: 'asc',
-			apiKey: 'K1A72SQ6H1ZTJRKRD2D8VB6I6HYGHPJKMY'
+			apiKey: process.env.ETHERSCAN_API
 		}
 	})
 
