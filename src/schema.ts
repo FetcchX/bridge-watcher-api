@@ -12,7 +12,7 @@ export const resolverMap = {
 			return value.getTime()
 		},
 		parseLiteral: (ast: any) => {
-			if(ast.kind == Kind.INT) {
+			if (ast.kind == Kind.INT) {
 				return new Date(+ast.value)
 			}
 			return null
@@ -29,6 +29,10 @@ export const typeDefs = gql`
 		to: String!
 		from_chain: String!
 		to_chain: String!
+		from_token: String!
+		to_token: String!
+		amount: String!
+		estimateAmount: String!
 		origin_tx_hash: String!
 		dest_tx_hash: String
 		bridge: Bridge!
@@ -42,6 +46,10 @@ export const typeDefs = gql`
 		to: String!
 		from_chain: Chain!
 		to_chain: Chain!
+		from_token: String!
+		to_token: String!
+		amount: String!
+		estimateAmount: String!
 		origin_tx_hash: String!
 		bridge: Bridge!
 		status: TxStatus!
@@ -54,6 +62,10 @@ export const typeDefs = gql`
 		to: String
 		from_chain: Chain!
 		to_chain: Chain!
+		from_token: String!
+		to_token: String!
+		amount: String!
+		estimateAmount: String!
 		origin_tx_hash: String
 		dest_tx_hash: String
 		bridge: Bridge

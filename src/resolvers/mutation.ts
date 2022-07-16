@@ -10,6 +10,10 @@ export const Mutation = {
 				origin_tx_hash: args.tx.origin_tx_hash,
 				from_chain: args.tx.from_chain,
 				to_chain: args.tx.to_chain,
+				from_token: args.tx.from_token,
+				to_token: args.tx.to_token,
+				amount: args.tx.amount,
+				estimateAmount: args.tx.estimateAmount,
 				bridge: args.tx.bridge,
 				status: args.tx.status
 			}
@@ -27,6 +31,10 @@ export const Mutation = {
 				bridge: args.tx.bridge,
 				from_chain: args.tx.from_chain,
 				to_chain: args.tx.to_chain,
+				from_token: args.tx.from_token,
+				to_token: args.tx.to_token,
+				amount: args.tx.amount,
+				estimateAmount: args.tx.estimateAmount,
 				status: args.tx.status,
 				dest_time: args.tx.dest_time,
 				dest_tx_hash: args.tx.dest_tx_hash

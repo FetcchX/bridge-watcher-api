@@ -36,6 +36,10 @@ model Transaction {
   to             String
   from_chain     Chain     @default(ETH)
   to_chain       Chain     @default(POL)
+  from_token     String    @default("")
+  to_token       String    @default("")
+  amount         String    @default("0")
+  estimateAmount String    @default("0")
   origin_tx_hash String
   dest_tx_hash   String?
   bridge         Bridge
