@@ -37,19 +37,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var client_1 = require("@prisma/client");
-var prisma_1 = require("../prisma");
+var axios_1 = require("axios");
 var ethers_1 = require("ethers");
+var prisma_1 = require("../prisma");
 var dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
-/*
-1. Check Transactions of every Block
-2. Check if `to` of that tx exists in database for any pending tx
-3. Decode Tx Data and compare depositHash
-4. If it exists, compare the tokens, compare the value
-*/
-var abi = [{ "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "authorizer", "type": "address" }, { "indexed": true, "internalType": "bytes32", "name": "nonce", "type": "bytes32" }], "name": "AuthorizationCanceled", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "authorizer", "type": "address" }, { "indexed": true, "internalType": "bytes32", "name": "nonce", "type": "bytes32" }], "name": "AuthorizationUsed", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "_account", "type": "address" }], "name": "Blacklisted", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "newBlacklister", "type": "address" }], "name": "BlacklisterChanged", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "burner", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Burn", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "newMasterMinter", "type": "address" }], "name": "MasterMinterChanged", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "minter", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Mint", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "minter", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "minterAllowedAmount", "type": "uint256" }], "name": "MinterConfigured", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "oldMinter", "type": "address" }], "name": "MinterRemoved", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "address", "name": "previousOwner", "type": "address" }, { "indexed": false, "internalType": "address", "name": "newOwner", "type": "address" }], "name": "OwnershipTransferred", "type": "event" }, { "anonymous": false, "inputs": [], "name": "Pause", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "newAddress", "type": "address" }], "name": "PauserChanged", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "newRescuer", "type": "address" }], "name": "RescuerChanged", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "Transfer", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "_account", "type": "address" }], "name": "UnBlacklisted", "type": "event" }, { "anonymous": false, "inputs": [], "name": "Unpause", "type": "event" }, { "inputs": [], "name": "CANCEL_AUTHORIZATION_TYPEHASH", "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "DOMAIN_SEPARATOR", "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "PERMIT_TYPEHASH", "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "RECEIVE_WITH_AUTHORIZATION_TYPEHASH", "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "TRANSFER_WITH_AUTHORIZATION_TYPEHASH", "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" }], "name": "allowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "authorizer", "type": "address" }, { "internalType": "bytes32", "name": "nonce", "type": "bytes32" }], "name": "authorizationState", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_account", "type": "address" }], "name": "blacklist", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "blacklister", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }], "name": "burn", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "authorizer", "type": "address" }, { "internalType": "bytes32", "name": "nonce", "type": "bytes32" }, { "internalType": "uint8", "name": "v", "type": "uint8" }, { "internalType": "bytes32", "name": "r", "type": "bytes32" }, { "internalType": "bytes32", "name": "s", "type": "bytes32" }], "name": "cancelAuthorization", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "minter", "type": "address" }, { "internalType": "uint256", "name": "minterAllowedAmount", "type": "uint256" }], "name": "configureMinter", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "currency", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "decrement", "type": "uint256" }], "name": "decreaseAllowance", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "increment", "type": "uint256" }], "name": "increaseAllowance", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "string", "name": "tokenName", "type": "string" }, { "internalType": "string", "name": "tokenSymbol", "type": "string" }, { "internalType": "string", "name": "tokenCurrency", "type": "string" }, { "internalType": "uint8", "name": "tokenDecimals", "type": "uint8" }, { "internalType": "address", "name": "newMasterMinter", "type": "address" }, { "internalType": "address", "name": "newPauser", "type": "address" }, { "internalType": "address", "name": "newBlacklister", "type": "address" }, { "internalType": "address", "name": "newOwner", "type": "address" }], "name": "initialize", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "string", "name": "newName", "type": "string" }], "name": "initializeV2", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "lostAndFound", "type": "address" }], "name": "initializeV2_1", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_account", "type": "address" }], "name": "isBlacklisted", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "isMinter", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "masterMinter", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_to", "type": "address" }, { "internalType": "uint256", "name": "_amount", "type": "uint256" }], "name": "mint", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "minter", "type": "address" }], "name": "minterAllowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }], "name": "nonces", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "pause", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "paused", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "pauser", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" }, { "internalType": "uint256", "name": "deadline", "type": "uint256" }, { "internalType": "uint8", "name": "v", "type": "uint8" }, { "internalType": "bytes32", "name": "r", "type": "bytes32" }, { "internalType": "bytes32", "name": "s", "type": "bytes32" }], "name": "permit", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" }, { "internalType": "uint256", "name": "validAfter", "type": "uint256" }, { "internalType": "uint256", "name": "validBefore", "type": "uint256" }, { "internalType": "bytes32", "name": "nonce", "type": "bytes32" }, { "internalType": "uint8", "name": "v", "type": "uint8" }, { "internalType": "bytes32", "name": "r", "type": "bytes32" }, { "internalType": "bytes32", "name": "s", "type": "bytes32" }], "name": "receiveWithAuthorization", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "minter", "type": "address" }], "name": "removeMinter", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "contract IERC20", "name": "tokenContract", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "rescueERC20", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "rescuer", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "transfer", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "transferFrom", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "newOwner", "type": "address" }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" }, { "internalType": "uint256", "name": "validAfter", "type": "uint256" }, { "internalType": "uint256", "name": "validBefore", "type": "uint256" }, { "internalType": "bytes32", "name": "nonce", "type": "bytes32" }, { "internalType": "uint8", "name": "v", "type": "uint8" }, { "internalType": "bytes32", "name": "r", "type": "bytes32" }, { "internalType": "bytes32", "name": "s", "type": "bytes32" }], "name": "transferWithAuthorization", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_account", "type": "address" }], "name": "unBlacklist", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "unpause", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_newBlacklister", "type": "address" }], "name": "updateBlacklister", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_newMasterMinter", "type": "address" }], "name": "updateMasterMinter", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_newPauser", "type": "address" }], "name": "updatePauser", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "newRescuer", "type": "address" }], "name": "updateRescuer", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "version", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }];
-var NATIVE_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-var provider = new ethers_1.ethers.providers.JsonRpcProvider(process.env.ETH_RPC_URL);
+var BASE_URL = {
+    1: 'https://api.etherscan.io/api'
+};
+var whitelist_addresses = [
+    '0x2a5c2568b10a0e826bfa892cf21ba7218310180b'
+];
 var find_tx_by_to = function (to) {
     return prisma_1.prisma.transaction.findFirst({
         where: {
@@ -61,86 +59,175 @@ var find_tx_by_to = function (to) {
         }
     });
 };
-var decodeTx = function (tx) { return __awaiter(void 0, void 0, void 0, function () {
-    var txReceipt, db_tx, value, plus10Percent, minus10Percent, logs;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, provider.getTransactionReceipt(tx.hash)];
-            case 1:
-                txReceipt = _a.sent();
-                return [4 /*yield*/, find_tx_by_to('0xe7804c37c13166ff0b37f5ae0bb07a3aebb6e245')];
-            case 2:
-                db_tx = _a.sent();
-                if (!db_tx)
-                    throw "Transaction not found in database";
-                console.log(db_tx.to_token);
-                if (db_tx.to_token === NATIVE_ADDRESS) {
-                    value = tx.value.toString();
-                    plus10Percent = Number(value) + ((1 / Number(value)) * 100);
-                    minus10Percent = Number(value) - ((1 / Number(value)) * 100);
-                    if (plus10Percent >= Number(db_tx.amount) || minus10Percent <= Number(db_tx.amount)) {
-                        console.log("Found -> ", tx.hash, Number(db_tx.amount), minus10Percent, plus10Percent);
-                    }
-                }
-                else {
-                    logs = txReceipt.logs;
-                    logs.map(function (log) {
-                        if (log.address === db_tx.to_token) {
-                            if (log.topics.length === 3) {
-                                var value = ethers_1.BigNumber.from(log.data).toNumber();
-                                var plus10Percent = Number(value) + ((1 / Number(value)) * 100);
-                                var minus10Percent = Number(value) - ((1 / Number(value)) * 100);
-                                if (plus10Percent <= Number(db_tx.amount) || minus10Percent >= Number(db_tx.amount)) {
-                                    console.log("Found -> ", tx.hash, Number(db_tx.amount), minus10Percent, plus10Percent);
-                                }
-                            }
-                        }
-                    });
-                }
-                return [2 /*return*/];
-        }
-    });
-}); };
-var getLatestBlock = function (block_number) { return __awaiter(void 0, void 0, void 0, function () {
-    var prev_block_number, newBlock, txs;
+var update_db_tx = function (id, data) { return __awaiter(void 0, void 0, void 0, function () {
+    var db_tx;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                if (!!block_number) return [3 /*break*/, 2];
-                return [4 /*yield*/, prisma_1.prisma.block.findFirst()];
+                console.log(id, "id");
+                return [4 /*yield*/, prisma_1.prisma.transaction.update({
+                        where: {
+                            id: id
+                        },
+                        data: data
+                    })];
             case 1:
-                prev_block_number = _a.sent();
-                if (prev_block_number === null || prev_block_number === void 0 ? void 0 : prev_block_number.block_number) {
-                    block_number = Number(prev_block_number.block_number) + 1;
+                db_tx = _a.sent();
+                if (!db_tx)
+                    throw "Can't update database";
+                return [2 /*return*/, true];
+        }
+    });
+}); };
+var get_internal_tx = function (bridge, chain, startBlock, endBlock) { return __awaiter(void 0, void 0, void 0, function () {
+    var base_url, res, data, tx_list, i, tx, db_tx, plus10Percent, minus10Percent, value;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                base_url = BASE_URL[chain];
+                return [4 /*yield*/, (0, axios_1["default"])({
+                        url: "".concat(base_url),
+                        method: 'GET',
+                        params: {
+                            module: 'account',
+                            action: 'txlistinternal',
+                            address: bridge,
+                            startblock: startBlock,
+                            endblock: endBlock,
+                            page: 1,
+                            offset: 10,
+                            sort: 'asc',
+                            apiKey: 'K1A72SQ6H1ZTJRKRD2D8VB6I6HYGHPJKMY'
+                        }
+                    })];
+            case 1:
+                res = _a.sent();
+                return [4 /*yield*/, res.data];
+            case 2:
+                data = _a.sent();
+                tx_list = data.result;
+                i = 0;
+                _a.label = 3;
+            case 3:
+                if (!(i < tx_list.length)) return [3 /*break*/, 7];
+                tx = tx_list[i];
+                return [4 /*yield*/, find_tx_by_to(tx.to)];
+            case 4:
+                db_tx = _a.sent();
+                if (!db_tx)
+                    throw "Can't find tx";
+                plus10Percent = Number(db_tx.estimateAmount) + (0.1 * Number(db_tx.estimateAmount));
+                minus10Percent = Number(db_tx.estimateAmount) - (0.1 * Number(db_tx.estimateAmount));
+                // console.log(tx.hash, plus10Percent, minus10Percent, value, "vavavava")
+                if (plus10Percent == Infinity || minus10Percent == Infinity || isNaN(plus10Percent) || isNaN(minus10Percent))
+                    throw "not a number";
+                value = Number(ethers_1.ethers.utils.formatUnits(tx.value, tx.tokenDecimal));
+                console.log(db_tx.estimateAmount, plus10Percent, minus10Percent, tx.value, value);
+                if (!(Number(db_tx.estimateAmount) === value || Number(plus10Percent) >= value || Number(minus10Percent) <= value)) return [3 /*break*/, 6];
+                console.log("found -> ", tx.hash);
+                return [4 /*yield*/, update_db_tx(db_tx.id, {
+                        dest_tx_hash: tx.hash,
+                        status: client_1.TxStatus.COMPLETED
+                    })];
+            case 5:
+                _a.sent();
+                _a.label = 6;
+            case 6:
+                i++;
+                return [3 /*break*/, 3];
+            case 7: return [2 /*return*/];
+        }
+    });
+}); };
+var get_erc20_tx = function (bridge, chain, startBlock, endBlock) { return __awaiter(void 0, void 0, void 0, function () {
+    var base_url, res, data, tx_list, i, tx, db_tx, plus10Percent, minus10Percent, value;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                base_url = BASE_URL[chain];
+                return [4 /*yield*/, (0, axios_1["default"])({
+                        url: "".concat(base_url),
+                        method: 'GET',
+                        params: {
+                            module: 'account',
+                            action: 'tokentx',
+                            address: bridge,
+                            startblock: startBlock,
+                            endblock: endBlock,
+                            page: 1,
+                            offset: 10,
+                            sort: 'asc',
+                            apiKey: 'K1A72SQ6H1ZTJRKRD2D8VB6I6HYGHPJKMY'
+                        }
+                    })];
+            case 1:
+                res = _a.sent();
+                return [4 /*yield*/, res.data];
+            case 2:
+                data = _a.sent();
+                tx_list = data.result;
+                i = 0;
+                _a.label = 3;
+            case 3:
+                if (!(i < tx_list.length)) return [3 /*break*/, 7];
+                tx = tx_list[i];
+                return [4 /*yield*/, find_tx_by_to(tx.to)];
+            case 4:
+                db_tx = _a.sent();
+                if (!db_tx)
+                    throw "Can't find tx";
+                plus10Percent = Number(db_tx.estimateAmount) + (0.1 * Number(db_tx.estimateAmount));
+                minus10Percent = Number(db_tx.estimateAmount) - (0.1 * Number(db_tx.estimateAmount));
+                if (plus10Percent == Infinity || minus10Percent == Infinity || isNaN(plus10Percent) || isNaN(minus10Percent))
+                    throw "not a number";
+                value = Number(ethers_1.ethers.utils.formatUnits(tx.value, tx.tokenDecimal));
+                console.log(db_tx.estimateAmount, plus10Percent, minus10Percent, tx.value, value);
+                if (!(Number(db_tx.estimateAmount) === value || Number(plus10Percent) >= value || Number(minus10Percent) <= value)) return [3 /*break*/, 6];
+                console.log("found -> ", tx.hash);
+                return [4 /*yield*/, update_db_tx(db_tx.id, {
+                        dest_tx_hash: tx.hash,
+                        status: client_1.TxStatus.COMPLETED
+                    })];
+            case 5:
+                _a.sent();
+                _a.label = 6;
+            case 6:
+                i++;
+                return [3 /*break*/, 3];
+            case 7: return [2 /*return*/];
+        }
+    });
+}); };
+var cron_job = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var block, block_no, provider, curr_block;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, prisma_1.prisma.block.findFirst()];
+            case 1:
+                block = _a.sent();
+                if (!block)
+                    throw "Can't find block";
+                block_no = Number(block.block_number);
+                provider = new ethers_1.ethers.providers.JsonRpcProvider(process.env.ETH_RPC_URL);
+                return [4 /*yield*/, provider.getBlockNumber()];
+            case 2:
+                curr_block = _a.sent();
+                if (curr_block > block_no) {
+                    console.log('1');
+                    whitelist_addresses.map(function (address) {
+                        get_internal_tx(address, 1, block_no, curr_block).then(function (a) { return console.log(a, "internal tx"); })["catch"](function (e) { return console.log(e, "internal tx error"); });
+                        get_erc20_tx(address, 1, block_no, curr_block).then(function (a) { return console.log(a, "erc20 tx"); })["catch"](function (e) { return console.log(e, "erc20 tx error"); });
+                    });
                 }
                 else {
-                    block_number = 0;
-                }
-                _a.label = 2;
-            case 2: return [4 /*yield*/, provider.getBlockWithTransactions(block_number)];
-            case 3:
-                newBlock = _a.sent();
-                txs = newBlock.transactions;
-                txs.map(function (tx) { return __awaiter(void 0, void 0, void 0, function () {
-                    var e_1;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0:
-                                _a.trys.push([0, 2, , 3]);
-                                return [4 /*yield*/, decodeTx(tx)];
-                            case 1:
-                                _a.sent();
-                                return [3 /*break*/, 3];
-                            case 2:
-                                e_1 = _a.sent();
-                                console.log(e_1, "Error");
-                                return [3 /*break*/, 3];
-                            case 3: return [2 /*return*/];
-                        }
+                    whitelist_addresses.map(function (address) {
+                        console.log('2');
+                        get_internal_tx(address, 1, block_no, block_no).then(function (a) { return console.log(a, "internal tx"); })["catch"](function (e) { return console.log(e, "internal tx error"); });
+                        get_erc20_tx(address, 1, block_no, block_no).then(function (a) { return console.log(a, "erc20 tx"); })["catch"](function (e) { return console.log(e, "erc20 tx error"); });
                     });
-                }); });
+                }
                 return [2 /*return*/];
         }
     });
 }); };
-getLatestBlock(14951034);
+cron_job().then(function (a) { return console.log(a); })["catch"](function (e) { return console.log(e); });

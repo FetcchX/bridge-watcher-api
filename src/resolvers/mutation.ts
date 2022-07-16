@@ -13,6 +13,7 @@ export const Mutation = {
 				from_token: args.tx.from_token,
 				to_token: args.tx.to_token,
 				amount: args.tx.amount,
+				estimateAmount: args.tx.estimateAmount,
 				bridge: args.tx.bridge,
 				status: args.tx.status
 			}
@@ -33,6 +34,7 @@ export const Mutation = {
 				from_token: args.tx.from_token,
 				to_token: args.tx.to_token,
 				amount: args.tx.amount,
+				estimateAmount: args.tx.estimateAmount,
 				status: args.tx.status,
 				dest_time: args.tx.dest_time,
 				dest_tx_hash: args.tx.dest_tx_hash

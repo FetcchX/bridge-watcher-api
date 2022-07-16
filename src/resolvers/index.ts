@@ -11,6 +11,7 @@ const Transaction = {
 	from_token: (parent: any, args: any, context: any, info: any) => parent.from_token,
 	to_token: (parent: any, args: any, context: any, info: any) => parent.to_token,
 	amount: (parent: any, args: any, context: any, info: any) => parent.amount,
+	estimateAmount: (parent: any, args: any, context: any, info: any) => parent.estimateAmount,
 	origin_tx_hash: (parent: any, args: any, context: any, info: any) => parent.origin_tx_hash,
 	dest_tx_hash: (parent: any, args: any, context: any, info: any) => parent.dest_tx_hash,
 	bridge: (parent: any, args: any, context: any, info: any) => parent.bridge,

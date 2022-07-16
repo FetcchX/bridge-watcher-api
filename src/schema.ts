@@ -32,6 +32,7 @@ export const typeDefs = gql`
 		from_token: String!
 		to_token: String!
 		amount: String!
+		estimateAmount: String!
 		origin_tx_hash: String!
 		dest_tx_hash: String
 		bridge: Bridge!
@@ -48,6 +49,7 @@ export const typeDefs = gql`
 		from_token: String!
 		to_token: String!
 		amount: String!
+		estimateAmount: String!
 		origin_tx_hash: String!
 		bridge: Bridge!
 		status: TxStatus!
@@ -63,6 +65,7 @@ export const typeDefs = gql`
 		from_token: String!
 		to_token: String!
 		amount: String!
+		estimateAmount: String!
 		origin_tx_hash: String
 		dest_tx_hash: String
 		bridge: Bridge
