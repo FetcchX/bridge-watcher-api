@@ -21,5 +21,6 @@ COPY . .
 # RUN rm -rf node_modules/ dist/
 RUN npx prisma generate
 RUN npm run build
+# RUN chmod +x ./wait-for-postgres.sh
 
-CMD [ "npm", "run", "start" ]
+CMD ["npm", "run", "start"]

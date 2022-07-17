@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "./node_modules/.bin/ts-node build.ts",
 		"lint": "eslint . --ext .ts",
-		"start": "npx prisma migrate deploy && node ./dist/src/index.js --env=production",
+		"start": "prisma migrate deploy && node ./dist/src/index.js --env=production",
 		"start:dev": "nodemon",
 		"test": "nodemon --config ./spec/nodemon.json",
 		"test:no-reloading": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./spec"
@@ -31,8 +31,11 @@
 		"jet-logger": "^1.1.5"
 	},
 	"devDependencies": {
+		"@types/fs-extra": "^9.0.13",
 		"@types/node": "^18.0.0",
+		"fs-extra": "^10.1.0",
 		"nodemon": "^2.0.16",
+		"npxd": "^1.4.1",
 		"prisma": "^3.15.2",
 		"ts-node": "^10.7.0",
 		"tsconfig-paths": "^4.0.0",
